@@ -45,11 +45,9 @@ Considering the repetition time (TR) is 2 seconds, these detections correspond t
 
 still in this analyses we expect to have a perfect detection of state transitin from both methods, which we did.
 
-**Enhanced Simulation with Noise**
+**Enhanced Simulation with Noise: apply_diff_noise_levels.m**
 
-In the next step of the analysis, we aimed to make the x, y, and z time series more similar to actual rs-fMRI time series by adding pink noise and Gaussian noise while maintaining 
-the correlation conditions between them. The Signal-to-Noise Ratio (SNR) for rs-fMRI is defined as 50, which is the mean of the time series over time divided by the 
-standard deviation of the entire noise for each time series. To achieve this:
+In the next step of the analysis, we aimed to make the x, y, and z time series more similar to actual rs-fMRI time series by adding pink noise and Gaussian noise while maintaining the correlation conditions between them. The Signal-to-Noise Ratio (SNR) for rs-fMRI is defined as 50, which is defined as the mean of the time series over time divided by the standard deviation of the entire noise for each time series. To achieve this:
 
 The mean of the time series was rescaled to 10000, while keeping the SNR at 50.
 This generation of time series was repeated 1000 times.
