@@ -31,14 +31,9 @@ function [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = ge
     z = zeros(size(x));
     z(1:transitionPoint) = sin(2 * pi * (t(1:transitionPoint) * 0.06) + acos(desired_corr_xz));
     z(transitionPoint+1:end) = sin(2 * pi * (t(transitionPoint+1:end) * 0.06) + acos(desired_corr_yz_high));
-
-    % Calculate correlation between y and z with transition3
-    y_corr_shift = y;
-    y_corr_shift(1:transitionPoint) = sin(2 * pi * (t(1:transitionPoint) * 0.06) + acos(desired_corr_yz_low));
-    y_corr_shift(transitionPoint+1:end) = sin(2 * pi * (t(transitionPoint+1:end) * 0.06) + acos(desired_corr_yz_high));
     
     % Add random noise to make each iteration unique
-    noise_level = 0.001; % Adjust the noise level as needed
+    noise_level = 0.1; % Adjust the noise level as needed
     x = x + noise_level * abs(randn(size(x)));
     y = y + noise_level * abs(randn(size(y)));
     z = z + noise_level * abs(randn(size(z)));
@@ -73,7 +68,7 @@ function [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = ge
     for i = 1:nTimePts - window_size + 1
         corr_over_time_xy(i) = corr(x(i:i+window_size-1)', y(i:i+window_size-1)');
         corr_over_time_xz(i) = corr(x(i:i+window_size-1)', z(i:i+window_size-1)');
-        corr_over_time_yz(i) = corr(y_corr_shift(i:i+window_size-1)', z(i:i+window_size-1)');
+        corr_over_time_yz(i) = corr(y(i:i+window_size-1)', z(i:i+window_size-1)');
     end
 
     subplot(3,1,2);
@@ -102,4 +97,3 @@ function [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = ge
     corr_over_time_xz = corr_over_time_xz';
     corr_over_time_yz = corr_over_time_yz';
 end
-
