@@ -61,15 +61,15 @@ for iter = 1:numIterations
     % Current min and max of the sine signal
     scaling_factor_x_min = min(x) / min(pink_noise_x) * abs(min(desired_std/std(pink_noise_x) * pink_noise_x));
     scaling_factor_x_max = max(x) / max(pink_noise_x) * max(desired_std/std(pink_noise_x) * pink_noise_x);
-    scaling_factor_x = max([scaling_factor_x_min, scaling_factor_x_max])
+    scaling_factor_x = max([scaling_factor_x_min, scaling_factor_x_max])/10;
 
     scaling_factor_y_min = min(y) / min(pink_noise_y) * abs(min(desired_std/std(pink_noise_y) * pink_noise_y));
     scaling_factor_y_max = max(y) / max(pink_noise_y) * max(desired_std/std(pink_noise_y) * pink_noise_y);
-    scaling_factor_y = max([scaling_factor_y_min, scaling_factor_y_max])
+    scaling_factor_y = max([scaling_factor_y_min, scaling_factor_y_max])/10;
 
     scaling_factor_z_min = min(z) / min(pink_noise_z) * abs(min(desired_std/std(pink_noise_z) * pink_noise_z));
     scaling_factor_z_max = max(z) / max(pink_noise_z) * max(desired_std/std(pink_noise_z) * pink_noise_z);
-    scaling_factor_z = max([scaling_factor_z_min, scaling_factor_z_max])
+    scaling_factor_z = max([scaling_factor_z_min, scaling_factor_z_max])/10;
 
     noisy_x = 10000 + (scaling_factor_x * x) + (desired_std/std(pink_noise_x) * pink_noise_x);
     noisy_y = 10000 + (scaling_factor_y * y) + (desired_std/std(pink_noise_y) * pink_noise_y);
