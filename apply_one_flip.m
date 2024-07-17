@@ -21,7 +21,7 @@ transitionPoint = 15;  % Transition between states happens at this point in TR
 
 k = nStates;
 % WSize = [30, 40, 50]; % in timepoints (TR = 2sec)
-WSize = 50; % in timepoints (TR = 2sec)
+WSize = 30; % in timepoints (TR = 2sec)
 
 % you can generate 1/f noise (Called pinknoise) in MATLAB directly.
 % For a sampling rate of 0.5 HZ (TR=2sec)and a duration of 300 seconds (150 TR):
@@ -59,21 +59,28 @@ for iter = 1:numIterations
     % i should keep the ratio between the min and max of the timeseries related
     % to the pink noise the same before and after rescaling
     % Current min and max of the sine signal
-    scaling_factor_x_min = min(x) / min(pink_noise_x) * abs(min(desired_std/std(pink_noise_x) * pink_noise_x));
-    scaling_factor_x_max = max(x) / max(pink_noise_x) * max(desired_std/std(pink_noise_x) * pink_noise_x);
-    scaling_factor_x = max([scaling_factor_x_min, scaling_factor_x_max])/10;
+    x_noise_min_ratio = min(x)/min(pink_noise_x);
+    x_noise_max_ratio = max(x)/max(pink_noise_x);
+    x_min_scale = x_noise_min_ratio * min(desired_std/std(pink_noise_x) * pink_noise_x)/ min(x);
+    x_max_scale = x_noise_max_ratio * max(desired_std/std(pink_noise_x) * pink_noise_x)/ max(x);
+    x_scale = mean([x_min_scale, x_max_scale])/8;
 
-    scaling_factor_y_min = min(y) / min(pink_noise_y) * abs(min(desired_std/std(pink_noise_y) * pink_noise_y));
-    scaling_factor_y_max = max(y) / max(pink_noise_y) * max(desired_std/std(pink_noise_y) * pink_noise_y);
-    scaling_factor_y = max([scaling_factor_y_min, scaling_factor_y_max])/10;
+    y_noise_min_ratio = min(y)/min(pink_noise_y);
+    y_noise_max_ratio = max(y)/max(pink_noise_y);
+    y_min_scale = y_noise_min_ratio * min(desired_std/std(pink_noise_y) * pink_noise_y)/ min(y);
+    y_max_scale = y_noise_max_ratio * max(desired_std/std(pink_noise_y) * pink_noise_y)/ max(y);
+    y_scale = mean([y_min_scale, y_max_scale])/8;
 
-    scaling_factor_z_min = min(z) / min(pink_noise_z) * abs(min(desired_std/std(pink_noise_z) * pink_noise_z));
-    scaling_factor_z_max = max(z) / max(pink_noise_z) * max(desired_std/std(pink_noise_z) * pink_noise_z);
-    scaling_factor_z = max([scaling_factor_z_min, scaling_factor_z_max])/10;
+    z_noise_min_ratio = min(z)/min(pink_noise_z);
+    z_noise_max_ratio = max(z)/max(pink_noise_z);
+    z_min_scale = z_noise_min_ratio * min(desired_std/std(pink_noise_z) * pink_noise_z)/ min(z);
+    z_max_scale = z_noise_max_ratio * max(desired_std/std(pink_noise_z) * pink_noise_z)/ max(z);
+    z_scale = mean([z_min_scale, z_max_scale])/8;
 
-    noisy_x = 10000 + (scaling_factor_x * x) + (desired_std/std(pink_noise_x) * pink_noise_x);
-    noisy_y = 10000 + (scaling_factor_y * y) + (desired_std/std(pink_noise_y) * pink_noise_y);
-    noisy_z = 10000 + (scaling_factor_z * z) + (desired_std/std(pink_noise_z) * pink_noise_z);
+
+    noisy_x = 10000 + (x_scale * x) + (desired_std/std(pink_noise_x) * pink_noise_x);
+    noisy_y = 10000 + (y_scale * y) + (desired_std/std(pink_noise_y) * pink_noise_y);
+    noisy_z = 10000 + (z_scale * z) + (desired_std/std(pink_noise_z) * pink_noise_z);
 
 %     noisy_x = zscore(noisy_x);
 %     noisy_y = zscore(noisy_y);
@@ -146,7 +153,7 @@ for iter = 1:numIterations
 end
 
 % Save results to a .mat file
-save('one_flip_at_15TR_WS50TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
+save('one_flip_at_15TR_WS30TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
 
 
 
