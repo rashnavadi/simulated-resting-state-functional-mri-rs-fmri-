@@ -1,11 +1,11 @@
 %% July 2024, By Tahereh Rashnavadi
 clear;
-close all;
+% close all;
 Basefile= '/Users/trashnavadi/Documents/Data_Analysis/2022/analyses/kmeans_investigation/2024/July';
 
 % Initialize variables
 % Number of iterations
-numIterations = 1000;
+numIterations = 1;
 nSubj = numIterations;
 % Timepoints
 nTimePts = 150;
@@ -16,12 +16,11 @@ time = linspace(0, (nTimePts-1) * TR, nTimePts);
 % in seconds
 % transitionPoint = [15, 45, 75, 120]; % in TR
 transitionPoint = 15;  % Transition between states happens at this point in TR
-% transitionPoint1 = 15;  % Transition between states happens at this point
-% transitionPoint2 = 15;  % Transition between states happens at this point
+
 
 k = nStates;
 % WSize = [30, 40, 50]; % in timepoints (TR = 2sec)
-WSize = 30; % in timepoints (TR = 2sec)
+WSize = 50; % in timepoints (TR = 2sec)
 
 % you can generate 1/f noise (Called pinknoise) in MATLAB directly.
 % For a sampling rate of 0.5 HZ (TR=2sec)and a duration of 300 seconds (150 TR):
@@ -46,8 +45,9 @@ all_noisy_z = zeros(nTimePts, numIterations);
 
 % Run the function for 1000 iterations
 for iter = 1:numIterations
-    [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids(nTimePts, transitionPoint);
-    %    [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids_2flips(nTimePts, transitionPoint1, transitionPoint);
+%     [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids(nTimePts, transitionPoint);
+    [x, y, z] = generateCorrelatedSinusoids(nTimePts, transitionPoint);
+
 
     % generate pink noise independently to each timeseries,
     % Generate pink noise for x, y, and z
@@ -153,7 +153,4 @@ for iter = 1:numIterations
 end
 
 % Save results to a .mat file
-save('one_flip_at_15TR_WS30TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
-
-
-
+% save('one_flip_at_120TR_WS40TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
