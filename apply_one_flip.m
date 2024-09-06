@@ -27,7 +27,6 @@ WSize = 50; % in timepoints (TR = 2sec)
 fs = 0.5;
 duration = 300;
 % generate pinknoise
-pink_noise_obj = dsp.ColoredNoise('Color', 'pink', 'SamplesPerFrame', nTimePts, 'NumChannels', 1);
 pink_noise_series = cell(3, numIterations);
 desired_snr = 50;
 desired_std = 200;
