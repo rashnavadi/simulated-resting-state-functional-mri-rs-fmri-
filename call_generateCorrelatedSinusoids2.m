@@ -1,42 +1,47 @@
 clear;
 close all;
+Basefile= '/Users/trashnavadi/Documents/Data_Analysis/2022/analyses/kmeans_investigation/2024/July';
+
 % Initialize variables
 % Number of iterations
 numIterations = 1;
-
-Basefile= '/Users/trashnavadi/Documents/Data_Analysis/2022/analyses/kmeans_investigation/2024/June/FINAL';
-
 nSubj = numIterations;
 % Timepoints
 nTimePts = 150;
 nStates = 2;
 TR = 2; % in sec
-% transitionPoint = [15, 45, 75, 120] % in TR, which are [30, 90, 150, 240]
-transitionPoint = 75;  % Transition between states happens at this point
+time = linspace(0, (nTimePts-1) * TR, nTimePts);
 
+% transitionPoint = [15, 45, 75, 120]; % in TR
+transitionPoint1 = 45;  % Transition between states happens at this point
+transitionPoint2 = 75;  % Transition between states happens at this point
 
 k = nStates;
 % WSize = [30, 40, 50]; % in timepoints (TR = 2sec)
-WSize = 50; % in timepoints (TRs), 300 sec
+WSize = 50; % in timepoints (TR = 2sec)
 
+% you can generate 1/f noise (Called pinknoise) in MATLAB directly.
+% For a sampling rate of 0.5 HZ (TR=2sec)and a duration of 300 seconds (150 TR):
+fs = 0.5;
+duration = 300;
+% generate pinknoise
+pink_noise_obj = dsp.ColoredNoise('Color', 'pink', 'SamplesPerFrame', nTimePts, 'NumChannels', 1);
+pink_noise_series = cell(3, numIterations);
+desired_snr = 50;
 
-% Preallocate arrays to store correlations
-StateFlip_SWC = cell(nSubj,1);
-StateFlip_HOCo = cell(nSubj,1);
+% Preallocate arrays to store state flips
+StateFlip_SWC = cell(numIterations, 1);
+StateFlip_HOCo = cell(numIterations, 1);
 
-all_corr_over_time_xy = cell(1, numIterations);
-all_corr_over_time_xz = cell(1, numIterations);
-all_corr_over_time_yz = cell(1, numIterations);
-
-all_x = cell(1, numIterations);
-all_y = cell(1, numIterations);
-all_z = cell(1, numIterations);
+% Initialize storage for noisy time series
+all_noisy_x = zeros(nTimePts, numIterations);
+all_noisy_y = zeros(nTimePts, numIterations);
+all_noisy_z = zeros(nTimePts, numIterations);
 
 
 % Run the function for 1000 iterations
 for iter = 1:numIterations
-%    [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids(nTimePts, transitionPoint);
-   [x, y, z] = generateCorrelatedSinusoids_2flips(nTimePts, transitionPoint);
+    [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids_2flips(nTimePts, transitionPoint1, transitionPoint2);
 
     clear TSs;TSs = cell(2,3);
     TSs{1,1} = 'timeseires_1';
@@ -103,6 +108,6 @@ for iter = 1:numIterations
 end
 
 % Save results to a .mat file
-save('correlated_sinusoids_results.mat', 'all_x', 'all_y', 'all_z', 'all_corr_over_time_xy', 'all_corr_over_time_xz', 'all_corr_over_time_yz');
+% save('correlated_sinusoids_results.mat', 'all_x', 'all_y', 'all_z', 'all_corr_over_time_xy', 'all_corr_over_time_xz', 'all_corr_over_time_yz');
 
 
