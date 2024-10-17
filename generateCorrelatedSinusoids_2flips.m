@@ -35,7 +35,7 @@ function [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = ge
     z(transitionPoint2+1:end) = sin(2 * pi * (t(transitionPoint2+1:end) * 0.06) + acos(desired_corr_xz));
 
     % Add random noise to make each iteration unique
-    noise_level = 0.1; % Adjust the noise level as needed
+    noise_level = 0.001; % Adjust the noise level as needed
     x = x + noise_level * abs(randn(size(x)));
     y = y + noise_level * abs(randn(size(y)));
     z = z + noise_level * abs(randn(size(z)));
