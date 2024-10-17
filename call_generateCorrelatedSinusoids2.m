@@ -4,28 +4,29 @@ Basefile= '/Users/trashnavadi/Documents/Data_Analysis/2022/analyses/kmeans_inves
 
 % Initialize variables
 % Number of iterations
-numIterations = 1;
+numIterations = 10;
 nSubj = numIterations;
 % Timepoints
 nTimePts = 150;
 nStates = 2;
 TR = 2; % in sec
+k = nStates;
+
 time = linspace(0, (nTimePts-1) * TR, nTimePts);
 
-% transitionPoint = [15, 45, 75, 120]; % in TR
-transitionPoint1 = 45;  % Transition between states happens at this point
-transitionPoint2 = 75;  % Transition between states happens at this point
-
-k = nStates;
 % WSize = [30, 40, 50]; % in timepoints (TR = 2sec)
 WSize = 50; % in timepoints (TR = 2sec)
+
+% transitionPoint = [15, 45, 75, 120]; % in TR
+transitionPoint1 = 75;  % Transition between states happens at this point
+transitionPoint2 = 120;  % Transition between states happens at this point
 
 % you can generate 1/f noise (Called pinknoise) in MATLAB directly.
 % For a sampling rate of 0.5 HZ (TR=2sec)and a duration of 300 seconds (150 TR):
 fs = 0.5;
 duration = 300;
 % generate pinknoise
-pink_noise_obj = dsp.ColoredNoise('Color', 'pink', 'SamplesPerFrame', nTimePts, 'NumChannels', 1);
+% pink_noise_obj = dsp.ColoredNoise('Color', 'pink', 'SamplesPerFrame', nTimePts, 'NumChannels', 1);
 pink_noise_series = cell(3, numIterations);
 desired_snr = 50;
 
@@ -93,9 +94,9 @@ for iter = 1:numIterations
 %     % before running kmeans, trim the HOCo results, remove the FC matrices obtained from
     % shrinking/growing windows , because the truncated HOCo results were
     % better than the HOCo itself
-    dynamic12.bb  = dynamic12.bb(WSize/2 : size(X_full) - WSize/2);
-    dynamic13.bb  = dynamic13.bb(WSize/2 : size(X_full) - WSize/2);
-    dynamic23.bb  = dynamic23.bb(WSize/2 : size(X_full) - WSize/2);
+%     dynamic12.bb  = dynamic12.bb(WSize/2 : size(X_full) - WSize/2);
+%     dynamic13.bb  = dynamic13.bb(WSize/2 : size(X_full) - WSize/2);
+%     dynamic23.bb  = dynamic23.bb(WSize/2 : size(X_full) - WSize/2);
     % ========================================
     save(fullfile(Basefile, 'HOCo_results'), 'dynamic12', 'dynamic13', 'dynamic23')
     % kmeans
