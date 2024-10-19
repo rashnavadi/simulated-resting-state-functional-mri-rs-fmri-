@@ -5,7 +5,7 @@ Basefile= '/Users/trashnavadi/Documents/Data_Analysis/2022/analyses/kmeans_inves
 
 % Initialize variables
 % Number of iterations
-numIterations = 1000;
+numIterations = 10;
 nSubj = numIterations;
 % Timepoints
 nTimePts = 150;
@@ -13,23 +13,22 @@ nStates = 2;
 TR = 2; % in sec
 time = linspace(0, (nTimePts-1) * TR, nTimePts);
 
-% in seconds
-% transitionPoint = [15, 45, 75, 120]; % in TR
-transitionPoint1 = 15;  % Transition between states happens at this point
-transitionPoint2 = 75;  % Transition between states happens at this point
-
 k = nStates;
 % WSize = [30, 40, 50]; % in timepoints (TR = 2sec)
-WSize = 40; % in timepoints (TR = 2sec)
+WSize = 50; % in timepoints (TR = 2sec)
+
+% transitionPoint = [15, 45, 75, 120]; % in TR
+transitionPoint1 = 75;  % Transition between states happens at this point
+transitionPoint2 = 120;  % Transition between states happens at this point
 
 % you can generate 1/f noise (Called pinknoise) in MATLAB directly.
 % For a sampling rate of 0.5 HZ (TR=2sec)and a duration of 300 seconds (150 TR):
 fs = 0.5;
 duration = 300;
 % generate pinknoise
-pink_noise_obj = dsp.ColoredNoise('Color', 'pink', 'SamplesPerFrame', nTimePts, 'NumChannels', 1);
 pink_noise_series = cell(3, numIterations);
 desired_snr = 50;
+desired_std = 200;
 
 % Preallocate arrays to store state flips
 StateFlip_SWC = cell(numIterations, 1);
@@ -45,60 +44,41 @@ all_noisy_z = zeros(nTimePts, numIterations);
 for iter = 1:numIterations
     [x, y, z, corr_over_time_xy, corr_over_time_xz, corr_over_time_yz] = generateCorrelatedSinusoids_2flips(nTimePts, transitionPoint1, transitionPoint2);
 
-
-    % Add 10000 to mean of the timeseries, and Calculate the scaling factor
-    noise_std_x = (mean(x)+10000)/desired_snr;
-    noise_std_y = (mean(y)+10000)/desired_snr;
-    noise_std_z = (mean(z)+10000)/desired_snr;
-
     % generate pink noise independently to each timeseries,
     % Generate pink noise for x, y, and z
     pink_noise_x = pinknoise(nTimePts, 1);
     pink_noise_y = pinknoise(nTimePts, 1);
     pink_noise_z = pinknoise(nTimePts, 1);
 
-    % Calculate the combined noise standard deviation
-    current_std_noise_x = std(pink_noise_x);
-    current_std_noise_y = std(pink_noise_y);
-    current_std_noise_z = std(pink_noise_z);
+     % i should keep the ratio between the min and max of the timeseries related
+    % to the pink noise the same before and after rescaling
+    % Current min and max of the sine signal
+    x_noise_min_ratio = min(x)/min(pink_noise_x);
+    x_noise_max_ratio = max(x)/max(pink_noise_x);
+    x_min_scale = x_noise_min_ratio * min(desired_std/std(pink_noise_x) * pink_noise_x)/ min(x);
+    x_max_scale = x_noise_max_ratio * max(desired_std/std(pink_noise_x) * pink_noise_x)/ max(x);
+    x_scale = mean([x_min_scale, x_max_scale])/8;
 
-    % Calculate the scaling factor to achieve the desired total standard deviation
-    scaling_factor_noise_x = noise_std_x / current_std_noise_x;
-    scaling_factor_noise_y = noise_std_y / current_std_noise_y;
-    scaling_factor_noise_z = noise_std_z / current_std_noise_z;
+    y_noise_min_ratio = min(y)/min(pink_noise_y);
+    y_noise_max_ratio = max(y)/max(pink_noise_y);
+    y_min_scale = y_noise_min_ratio * min(desired_std/std(pink_noise_y) * pink_noise_y)/ min(y);
+    y_max_scale = y_noise_max_ratio * max(desired_std/std(pink_noise_y) * pink_noise_y)/ max(y);
+    y_scale = mean([y_min_scale, y_max_scale])/8;
 
-    % Scale the combined noise
-    scaled_noise_x = current_std_noise_x * scaling_factor_noise_x;
-    scaled_noise_y = current_std_noise_y * scaling_factor_noise_y;
-    scaled_noise_z = current_std_noise_z * scaling_factor_noise_z;
-    
+    z_noise_min_ratio = min(z)/min(pink_noise_z);
+    z_noise_max_ratio = max(z)/max(pink_noise_z);
+    z_min_scale = z_noise_min_ratio * min(desired_std/std(pink_noise_z) * pink_noise_z)/ min(z);
+    z_max_scale = z_noise_max_ratio * max(desired_std/std(pink_noise_z) * pink_noise_z)/ max(z);
+    z_scale = mean([z_min_scale, z_max_scale])/8;
 
-    % Add the scaled combined noise to the scaled by 1000:1500 of original
-    % signals, 1500 was multiplied to scale the values in x to order of 
-    noisy_x = 10000 + (1000 * x  + scaled_noise_x * pink_noise_x);
-    noisy_y = 10000 + (1000 * y  + scaled_noise_y * pink_noise_y);
-    noisy_z = 10000 + (1000 * z  + scaled_noise_z * pink_noise_z);
-    noisy_x = zscore(noisy_x);
-    noisy_y = zscore(noisy_y);
-    noisy_z = zscore(noisy_z);
+    noisy_x = 10000 + (x_scale * x) + (desired_std/std(pink_noise_x) * pink_noise_x);
+    noisy_y = 10000 + (y_scale * y) + (desired_std/std(pink_noise_y) * pink_noise_y);
+    noisy_z = 10000 + (z_scale * z) + (desired_std/std(pink_noise_z) * pink_noise_z);
 
     % Store the noisy signals
     all_noisy_x(:, iter) = noisy_x;
     all_noisy_y(:, iter) = noisy_y;
     all_noisy_z(:, iter) = noisy_z;
-
-    % Verify the standard deviation of the noise
-    final_noise_x = noisy_x - x;
-    final_noise_y = noisy_y - y;
-    final_noise_z = noisy_z - z;
-    final_std_noise_x = std(final_noise_x);
-    final_std_noise_y = std(final_noise_y);
-    final_std_noise_z = std(final_noise_z);
-
-    % Display the result
-    disp(['Final standard deviation of the noise for x: ', num2str(final_std_noise_x)]);
-    disp(['Final standard deviation of the noise for y: ', num2str(final_std_noise_y)]);
-    disp(['Final standard deviation of the noise for z: ', num2str(final_std_noise_z)]);
 
     % Prepare data for HOCo and SWC
     TSs = cell(2, 3);
@@ -149,7 +129,7 @@ for iter = 1:numIterations
 end
 
 % Save results to a .mat file
-save('two_flips_at_15,75TR_WS40TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
+save('two_flips_at_75,120TR_WS50TR.mat', 'all_noisy_x', 'all_noisy_y', 'all_noisy_z', 'StateFlip_HOCo', 'StateFlip_SWC');
 
 
 
